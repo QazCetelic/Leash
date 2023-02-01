@@ -1,5 +1,5 @@
 [package]
-name = "leash"
+name = "leash-cpu-limit"
 version = "1.0.0"
 edition = "2021"
 
