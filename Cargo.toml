@@ -1,13 +1,10 @@
 [package]
-name = "cpu-gui"
-version = "0.1.0"
+name = "leash"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
 gtk = "0.16.2"
-## requires polkit-devel to properly build
-#polkit = "0.15.1"
-#zbus = "3.7.0"
 
 [profile.release]
 # Strip: 4.1MiB -> 2.1MiB
