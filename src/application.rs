@@ -5,7 +5,7 @@ pub fn build_application(application: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(application);
 
     window.set_title("Leash");
-    window.set_icon_name(Some("emblem-system-symbolic"));
+    window.set_icon_name(Some("cpu"));
     window.set_border_width(10);
     window.set_position(gtk::WindowPosition::Center);
     window.set_default_size(500, 70);
