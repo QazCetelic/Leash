@@ -1,0 +1,14 @@
+[Desktop Action Source]
+Exec=xdg-open https://github.com/QazCetelic/Leash
+Icon=git
+Name=Source
+
+[Desktop Entry]
+Name=Leash
+Comment=Limit CPU usage
+Exec=~/.local/share/leash-cpu-limit/leash-cpu-limit
+Icon=cpu
+Terminal=false
+Type=Application
+Categories=Util;
+TryExec=~/.local/share/leash-cpu-limit/leash-cpu-limit
