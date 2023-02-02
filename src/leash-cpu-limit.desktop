@@ -11,4 +11,3 @@ Icon=cpu
 Terminal=false
 Type=Application
 Categories=Util;
-TryExec=~/.local/share/leash-cpu-limit/leash-cpu-limit
