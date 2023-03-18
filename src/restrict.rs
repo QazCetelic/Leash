@@ -15,7 +15,7 @@ pub(crate) fn set_max_freq_ghz(freq: f64) -> bool {
 
 pub(crate) fn ram_restrict(restrict: bool) -> bool {
     let overcommit_memory = if restrict { 2 } else { 0 };
-    let overcommit_ratio = if restrict { 90 } else { 50 };
+    let overcommit_ratio = if restrict { 95 } else { 50 };
     let mut child = Command::new("pkexec")
         .arg("sh")
         .arg("-c")
