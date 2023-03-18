@@ -1,6 +1,6 @@
 use std::cmp::min;
 use std::time::Duration;
-use gtk::{prelude::*, glib};
+use gtk::{prelude::*, glib, Frame};
 use gtk::glib::clone;
 use crate::cpu_info::{core_count, current_freq_avg_mhz};
 use crate::cpu_info::current_freq_max_mhz;
@@ -10,9 +10,8 @@ use crate::cpu_info::temperature;
 use crate::restrict::set_max_freq_ghz;
 use crate::freq_util::{mhz_to_ghz, round_to_100mhz};
 
-pub(crate) fn layout_cpu(layout: &gtk::Box) -> Option<()> {
+pub(crate) fn layout_cpu() -> Option<Frame> {
     let frame = gtk::Frame::new(Some("CPU"));
-    layout.pack_start(&frame, false, false, 0);
     frame.set_label_xalign(0.5);
     let vbox = gtk::Box::new(gtk::Orientation::Vertical, 10);
     frame.add(&vbox);
@@ -83,5 +82,5 @@ pub(crate) fn layout_cpu(layout: &gtk::Box) -> Option<()> {
     };
     glib::timeout_add_local(Duration::from_millis(250), current_temp_update);
 
-    Some(())
+    Some(frame)
 }

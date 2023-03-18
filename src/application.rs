@@ -8,7 +8,6 @@ pub fn build_application(application: &gtk::Application) {
     window.set_icon_name(Some("cpu"));
     window.set_border_width(10);
     window.set_position(gtk::WindowPosition::Center);
-    window.set_default_size(500, 70);
 
     let layout_opt = build_layout();
     if let Some(layout) = layout_opt {
