@@ -1,8 +1,11 @@
 mod cpu_info;
-mod cpu_restrict;
+mod restrict;
 mod freq_util;
 mod layout;
 mod application;
+mod layout_ram;
+mod ram_usage;
+mod layout_cpu;
 
 use gtk::{prelude::*};
 use crate::application::build_application;

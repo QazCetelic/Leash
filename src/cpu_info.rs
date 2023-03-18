@@ -1,31 +1,27 @@
 // Seems to be unaffected by cpulimit of cpupower.
 
-pub fn current_freq_avg_mhz() -> Option<u32> {
-    let core_count = core_count()?;
+pub fn current_freq_avg_mhz(core_count: u32) -> Option<u32> {
     let freq_sum: u32 = (0..core_count)
         .map(|core| current_freq_core_mhz(core))
         .sum::<Option<u32>>()?;
     Some(freq_sum / core_count)
 }
 
-pub fn current_freq_max_mhz() -> Option<u32> {
-    let core_count = core_count()?;
+pub fn current_freq_max_mhz(core_count: u32) -> Option<u32> {
     (0..core_count)
         .map(|core| current_max_freq_core_mhz(core))
         .max()
         .flatten()
 }
 
-pub fn freq_max_mhz() -> Option<u32> {
-    let core_count = core_count()?;
+pub fn freq_max_mhz(core_count: u32) -> Option<u32> {
     (0..core_count)
         .map(|core| max_freq_core_mhz(core))
         .max()
         .flatten()
 }
 
-pub fn freq_min_mhz() -> Option<u32> {
-    let core_count = core_count()?;
+pub fn freq_min_mhz(core_count: u32) -> Option<u32> {
     (0..core_count)
         .map(|core| min_freq_core_mhz(core))
         .min()
