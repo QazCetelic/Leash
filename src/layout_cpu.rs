@@ -12,7 +12,7 @@ use crate::freq_util::{mhz_to_ghz, round_to_100mhz};
 
 pub(crate) fn layout_cpu(layout: &gtk::Box) -> Option<()> {
     let frame = gtk::Frame::new(Some("CPU"));
-    layout.add(&frame);
+    layout.pack_start(&frame, false, false, 0);
     frame.set_label_xalign(0.5);
     let vbox = gtk::Box::new(gtk::Orientation::Vertical, 10);
     frame.add(&vbox);

@@ -1,12 +1,12 @@
 use std::time::Duration;
 use gtk::glib;
 use gtk::glib::{clone, Continue};
-use gtk::prelude::{ContainerExt, FrameExt, ProgressBarExt, SwitchExt, WidgetExt};
+use gtk::prelude::{BoxExt, ContainerExt, FrameExt, ProgressBarExt, SwitchExt, WidgetExt};
 use crate::{ram_usage, restrict};
 
 pub(crate) fn layout_ram(layout: &gtk::Box) -> Option<()> {
     let frame = gtk::Frame::new(Some("RAM"));
-    layout.add(&frame);
+    layout.pack_end(&frame, false, false, 0);
     frame.set_label_xalign(0.5);
     let vbox = gtk::Box::new(gtk::Orientation::Vertical, 10);
     frame.add(&vbox);
