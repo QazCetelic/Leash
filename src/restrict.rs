@@ -17,9 +17,9 @@ pub(crate) fn ram_restrict(restrict: bool) -> bool {
     let overcommit_memory = if restrict { 2 } else { 0 };
     let overcommit_ratio = if restrict { 95 } else { 50 };
     let mut child = Command::new("pkexec")
-        .arg("sh")
-        .arg("-c")
-        .arg(format!("sysctl sysctl vm.overcommit_memory={} && vm.overcommit_ratio={}", overcommit_memory, overcommit_ratio))
+        .arg("sysctl")
+        .arg(format!("vm.overcommit_memory={}", overcommit_memory, ))
+        .arg(format!("vm.overcommit_ratio={}", overcommit_ratio))
         .stdout(std::process::Stdio::null())
         .spawn()
         .expect("Failed to set RAM restriction");
