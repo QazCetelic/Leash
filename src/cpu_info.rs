@@ -75,26 +75,27 @@ pub fn core_count() -> Option<u32> {
     Some(count as u32)
 }
 
-pub fn temperature() -> Option<u32> {
-    let thermal_zones_dir = std::fs::read_dir("/sys/class/thermal/").ok()?;
+pub fn temperature() -> Result<u32, &'static str> {
+    let thermal_zones_dir = std::fs::read_dir("/sys/class/thermal/")
+        .map_err(|_| "'/sys/class/thermal/' directory not found")?;
     for dir_res in thermal_zones_dir {
         if let Ok(dir) = dir_res {
             if let Ok(name) = dir.file_name().into_string() {
                 if name.starts_with("thermal_zone") {
-                    let zone = name.strip_prefix("thermal_zone")?;
-                    let zone_path = format!("/sys/class/thermal/thermal_zone{}/", zone);
-                    let type_string = std::fs::read_to_string(format!("{}type", zone_path)).ok()?;
-                    // This might not work with all CPU's.
-                    if type_string.contains("x86_pkg_temp") {
-                        let temp_string = std::fs::read_to_string(format!("{}temp", zone_path)).ok()?;
-                        let temp_string_trimmed = temp_string.strip_suffix("\n")?;
-                        let temp = temp_string_trimmed.parse::<u32>().ok()? / 1000;
-                        return Some(temp);
-                    }
+                    let temp: u32 = read_thermal_zone(&name).ok_or("Failed to read thermal zone")?;
+                    return Ok(temp);
                 }
             }
         }
     }
+    Err("Thermal zone directory not found")
+}
 
-    None
+fn read_thermal_zone(name: &str) -> Option<u32> {
+    let zone = name.strip_prefix("thermal_zone")?;
+    let zone_path = format!("/sys/class/thermal/thermal_zone{}/", zone);
+    let temp_string = std::fs::read_to_string(format!("{}temp", zone_path)).ok()?;
+    let temp_string_trimmed = temp_string.strip_suffix("\n")?;
+    let temp = temp_string_trimmed.parse::<u32>().ok()? / 1000;
+    return Some(temp);
 }

@@ -70,12 +70,14 @@ pub(crate) fn layout_cpu() -> Option<Frame> {
     vbox.add(&current_temp_bar);
     let current_temp_update = move || {
         const MAX_TEMP: u32 = 100;
-        if let Some(temp) = temperature() {
-            current_temp_bar.set_fraction(min(MAX_TEMP, temp) as f64 / MAX_TEMP as f64);
-            current_temp_bar.set_text(Some(format!("Current temperature {} °C", temp).as_str()));
-        }
-        else {
-            current_temp_bar.set_text(Some("Failed to fetch current cpu temperature"));
+        match temperature() {
+            Ok(temp) => {
+                current_temp_bar.set_fraction(min(MAX_TEMP, temp) as f64 / MAX_TEMP as f64);
+                current_temp_bar.set_text(Some(format!("Current temperature {} °C", temp).as_str()));
+            },
+            Err(error) => {
+                current_temp_bar.set_text(Some(error));
+            }
         };
 
         Continue(true)
