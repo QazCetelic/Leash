@@ -15,9 +15,9 @@ pub(crate) fn layout_ram() -> Option<Frame> {
     vbox.add(&ram_hbox);
     ram_hbox.set_halign(gtk::Align::Center);
     ram_hbox.set_margin_top(10);
-    ram_hbox.set_tooltip_text(Some("Changes overcommit variables to prevent overloading RAM"));
+    ram_hbox.set_tooltip_text(Some("Changes overcommit variables to prevent overcommitting RAM"));
 
-    let ram_label = gtk::Label::new(Some("Prevent overloading RAM"));
+    let ram_label = gtk::Label::new(Some("Prevent overcommitting RAM"));
     ram_hbox.add(&ram_label);
 
     let switch = gtk::Switch::new();
