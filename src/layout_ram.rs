@@ -1,7 +1,7 @@
 use std::time::Duration;
 use gtk::{Frame, glib};
 use gtk::glib::{clone, Continue};
-use gtk::prelude::{BoxExt, ContainerExt, FrameExt, ProgressBarExt, SwitchExt, WidgetExt};
+use gtk::prelude::{ContainerExt, FrameExt, ProgressBarExt, SwitchExt, WidgetExt};
 use crate::{ram_usage, restrict};
 
 pub(crate) fn layout_ram() -> Option<Frame> {

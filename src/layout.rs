@@ -1,4 +1,4 @@
-use gtk::prelude::{BoxExt, FrameExt, WidgetExt};
+use gtk::prelude::BoxExt;
 use crate::layout_cpu::layout_cpu;
 use crate::layout_ram::layout_ram;
 
