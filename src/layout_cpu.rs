@@ -2,13 +2,13 @@ use std::cmp::min;
 use std::time::Duration;
 use gtk::{prelude::*, glib, Frame};
 use gtk::glib::clone;
-use crate::cpu_info::{core_count, current_freq_avg_mhz};
+use crate::cpu_info::{available_scaling_frequencies, core_count, current_freq_avg_mhz, get_current_governor};
 use crate::cpu_info::current_freq_max_mhz;
 use crate::cpu_info::freq_min_mhz;
 use crate::cpu_info::freq_max_mhz;
 use crate::cpu_info::temperature;
 use crate::restrict::set_max_freq_ghz;
-use crate::freq_util::{mhz_to_ghz, round_to_100mhz};
+use crate::freq_util::{ghz_to_mhz, mhz_to_ghz, round_to_100mhz};
 
 pub(crate) fn layout_cpu() -> Option<Frame> {
     let frame = gtk::Frame::new(Some("CPU"));
@@ -22,11 +22,15 @@ pub(crate) fn layout_cpu() -> Option<Frame> {
     let max_freq_mhz: u32 = freq_max_mhz(core_count)?;
     let min_freq_ghz = mhz_to_ghz(min_freq_mhz);
     let max_freq_ghz = mhz_to_ghz(max_freq_mhz);
+    let selected_freq = mhz_to_ghz(current_freq_max_mhz(core_count)?);
+
+    let governor_label = gtk::Label::new(None);
+    vbox.add(&governor_label);
 
     // FREQUENCY LIMITS
     let freq_slider = gtk::Scale::with_range(gtk::Orientation::Horizontal, min_freq_ghz, max_freq_ghz, 0.1);
     vbox.add(&freq_slider);
-    freq_slider.set_value(mhz_to_ghz(current_freq_max_mhz(core_count)?));
+    freq_slider.set_value(selected_freq);
 
     let apply_button = gtk::Button::with_label("Set frequency limit");
     vbox.add(&apply_button);
@@ -34,12 +38,30 @@ pub(crate) fn layout_cpu() -> Option<Frame> {
         set_max_freq_ghz(freq_slider.value());
     }));
 
+    freq_slider.connect_change_value(|_slider, _scroll_type, value| {
+        let freq_is_available = if let Some(freqs) = available_scaling_frequencies() {
+            freqs.contains(&round_to_100mhz(ghz_to_mhz(value)))
+        }
+        // Assume all frequencies are available if no configuration is found
+        else { true };
+        return Inhibit(!freq_is_available);
+    });
+
     let update_slider = clone!(@weak freq_slider => move || {
         freq_slider.clear_marks();
         let current_max_freq = current_freq_max_mhz(core_count).expect("Failed to get current max frequency");
-        freq_slider.add_mark(min_freq_ghz, gtk::PositionType::Top, Some(format!("Min {} GHz", min_freq_ghz).as_str()));
-        freq_slider.add_mark(max_freq_ghz, gtk::PositionType::Top, Some(format!("Max {} GHz", max_freq_ghz).as_str()));
-        freq_slider.add_mark(mhz_to_ghz(current_max_freq), gtk::PositionType::Bottom, Some(format!("Current limit at {}GHz", mhz_to_ghz(round_to_100mhz(current_max_freq))).as_str()));
+        freq_slider.add_mark(min_freq_ghz, gtk::PositionType::Top, Some(format!("\nMin {:.2} GHz", min_freq_ghz).as_str()));
+        freq_slider.add_mark(max_freq_ghz, gtk::PositionType::Top, Some(format!("\nMax {:.2} GHz", max_freq_ghz).as_str()));
+        if let Some(freqs) = available_scaling_frequencies() {
+            for freq in freqs {
+                let ghz = mhz_to_ghz(freq);
+                let offset = ghz + 0.001;
+                freq_slider.add_mark(offset, gtk::PositionType::Bottom, Some(format!("{:.1}", ghz).as_str()));
+            }
+        }
+        let current_governor = get_current_governor().expect("Failed to get current governor");
+        governor_label.set_text(format!("Current governor is '{}'", current_governor).as_str());
+        freq_slider.add_mark(mhz_to_ghz(current_max_freq), gtk::PositionType::Top, Some(format!("Current limit at {:.1}GHz", mhz_to_ghz(round_to_100mhz(current_max_freq))).as_str()));
     });
     update_slider();
     glib::timeout_add_local(Duration::from_millis(1000), move || {

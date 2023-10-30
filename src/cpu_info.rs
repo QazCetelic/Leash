@@ -1,5 +1,7 @@
 // Seems to be unaffected by cpulimit of cpupower.
 
+use crate::freq_util::khz_to_mhz;
+
 pub fn current_freq_avg_mhz(core_count: u32) -> Option<u32> {
     let freq_sum: u32 = (0..core_count)
         .map(|core| current_freq_core_mhz(core))
@@ -55,6 +57,15 @@ fn core_freq_data_mhz(core: u32, data: &'static str) -> Option<u32> {
     Some(freq)
 }
 
+pub fn available_scaling_frequencies() -> Option<Vec<u32>> {
+    let frequencies: Vec<u32> = core_data(0, "scaling_available_frequencies")?
+        .split(" ")
+        .filter_map(|s| s.parse::<u32>().ok())
+        .map(|freq| khz_to_mhz(freq))
+        .collect();
+    return Some(frequencies);
+}
+
 fn core_data(core: u32, data: &'static str) -> Option<String> {
     let path = format!("/sys/devices/system/cpu/cpu{}/cpufreq/{}", core, data);
     let data_string = std::fs::read_to_string(path).ok()?;
@@ -98,4 +109,19 @@ fn read_thermal_zone(name: &str) -> Option<u32> {
     let temp_string_trimmed = temp_string.strip_suffix("\n")?;
     let temp = temp_string_trimmed.parse::<u32>().ok()? / 1000;
     return Some(temp);
+}
+
+#[allow(dead_code)]
+pub fn get_governors() -> Option<Vec<String>> {
+    let governors = core_data(0, "scaling_available_governors")?
+        .strip_suffix(" ")?
+        .split(" ")
+        .map(|s| s.to_string())
+        .collect();
+
+    return Some(governors);
+}
+
+pub fn get_current_governor() -> Option<String> {
+    Some(core_data(0, "scaling_governor")?)
 }

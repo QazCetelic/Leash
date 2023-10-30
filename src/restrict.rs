@@ -31,3 +31,17 @@ pub(crate) fn ram_is_restricted() -> bool {
     let overcommit_memory = std::fs::read_to_string("/proc/sys/vm/overcommit_memory").expect("Failed to read overcommit_memory");
     overcommit_memory.trim() == "2"
 }
+
+#[allow(dead_code)]
+pub(crate) fn set_cpu_governor(governor: String) -> bool {
+    let mut child = Command::new("pkexec")
+        .arg("cpupower")
+        .arg("frequency-set")
+        .arg("--governor")
+        .arg(governor)
+        .stdout(std::process::Stdio::null())
+        .spawn()
+        .expect("Failed to set governor");
+
+    child.wait().is_ok()
+}
