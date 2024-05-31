@@ -25,7 +25,10 @@ pub(crate) fn layout_ram() -> Option<Frame> {
         let restrict = switch.is_active();
         let is_restricted = restrict::ram_is_restricted();
         if restrict != is_restricted {
-            restrict::ram_restrict(restrict);
+            if let Err(error) = restrict::ram_restrict(restrict) {
+                eprintln!("Failed to restrict RAM: {}", error);
+                switch.set_active(is_restricted);
+            }
         }
     }));
     let update_switch_state = glib::clone!(@weak switch => move || {

@@ -35,7 +35,9 @@ pub(crate) fn layout_cpu() -> Option<Frame> {
     let apply_button = gtk::Button::with_label("Set frequency limit");
     vbox.add(&apply_button);
     apply_button.connect_clicked(clone!(@weak freq_slider => move |_| {
-        set_max_freq_ghz(freq_slider.value());
+        if let Err(error) = set_max_freq_ghz(freq_slider.value()) {
+            eprintln!("Failed to set frequency limit: {}", error);
+        }
     }));
 
     freq_slider.connect_change_value(|_slider, _scroll_type, value| {
@@ -60,7 +62,7 @@ pub(crate) fn layout_cpu() -> Option<Frame> {
             }
         }
         let current_governor = get_current_governor().expect("Failed to get current governor");
-        governor_label.set_text(format!("Current governor is '{}'", current_governor).as_str());
+        governor_label.set_text(format!("CPU governor: {}", current_governor).as_str());
         freq_slider.add_mark(mhz_to_ghz(current_max_freq), gtk::PositionType::Top, Some(format!("Current limit at {:.1}GHz", mhz_to_ghz(round_to_100mhz(current_max_freq))).as_str()));
     });
     update_slider();

@@ -1,2 +1,4 @@
 /target
 Cargo.lock
+/leash-cpu-limit
+.flatpak-builder

@@ -1,30 +1,34 @@
 use std::process::Command;
 
-pub(crate) fn set_max_freq_ghz(freq: f64) -> bool {
-    let mut child = Command::new("pkexec")
+pub(crate) fn set_max_freq_ghz(freq: f64) -> Result<(), String> {
+    Command::new("pkexec")
         .arg("cpupower")
         .arg("frequency-set")
         .arg("--max")
         .arg(format!("{}GHz", freq))
         .stdout(std::process::Stdio::null())
         .spawn()
-        .expect("Failed to set max frequency");
+        .map_err(|e| format!("cpupower couldn't start: {}", e))?
+        .wait()
+        .map_err(|e| format!("cpupower process exited with an error: {}", e))?;
 
-    child.wait().is_ok()
+    return Ok(());
 }
 
-pub(crate) fn ram_restrict(restrict: bool) -> bool {
+pub(crate) fn ram_restrict(restrict: bool) -> Result<(), String> {
     let overcommit_memory = if restrict { 2 } else { 0 };
     let overcommit_ratio = if restrict { 95 } else { 50 };
-    let mut child = Command::new("pkexec")
+    Command::new("pkexec")
         .arg("sysctl")
         .arg(format!("vm.overcommit_memory={}", overcommit_memory, ))
         .arg(format!("vm.overcommit_ratio={}", overcommit_ratio))
         .stdout(std::process::Stdio::null())
         .spawn()
-        .expect("Failed to set RAM restriction");
+        .map_err(|e| format!("sysctl couldn't start: {}", e))?
+        .wait()
+        .map_err(|e| format!("sysctl process exited with an error: {}", e))?;
 
-    child.wait().is_ok()
+    return Ok(());
 }
 
 pub(crate) fn ram_is_restricted() -> bool {
@@ -33,15 +37,17 @@ pub(crate) fn ram_is_restricted() -> bool {
 }
 
 #[allow(dead_code)]
-pub(crate) fn set_cpu_governor(governor: String) -> bool {
-    let mut child = Command::new("pkexec")
+pub(crate) fn set_cpu_governor(governor: String) -> Result<(), String> {
+    Command::new("pkexec")
         .arg("cpupower")
         .arg("frequency-set")
         .arg("--governor")
         .arg(governor)
         .stdout(std::process::Stdio::null())
         .spawn()
-        .expect("Failed to set governor");
+        .map_err(|e| format!("cpupower couldn't start: {}", e))?
+        .wait()
+        .map_err(|e| format!("cpupower process exited with an error: {}", e))?;
 
-    child.wait().is_ok()
+    return Ok(());
 }
